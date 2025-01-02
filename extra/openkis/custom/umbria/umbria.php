@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Funzioni specifiche per il catasto speleologico piemontese
+ * Funzioni specifiche per il catasto speleologico umbro
  */
 global $_FN; //variabile globale condivisa da tutto il programma Flatnux
 //questa riga di codiceassegna la funzione da richiamare dopo 
@@ -30,7 +30,7 @@ function PrimoNumeroLibero($table)
         $tmp=explode(".",$grotta['code']);
         $tmp=$tmp[0];
         //prendo solo il numero
-        $numero=intval(str_replace("CA","",str_replace("PI","",str_replace("AO","",str_replace("VA","",$grotta['code'])))));
+        $numero=intval(str_replace("UM","",$grotta['code']));
         $grotte_by_code[$numero]=$grotta;
         $grotte_by_code[$numero]['num']=$numero;
 
@@ -100,6 +100,44 @@ function GeneraNumeroUmbria($values)
 /**
  * 
  */
+
+function openkis_GetIcon_custom($iconparams, $itemvalues, $mod)
+{
+    global $_FN;
+    //custom field
+	$icon_params_old=$iconparams;
+	
+    if (isset($itemvalues['in_map']))
+    {
+		$values_array=explode(",",$itemvalues['in_map']);
+		if(in_array("inmap",$values_array)||in_array("certain",$values_array)){
+			$iconparams['trend'] = "posverified";
+		}
+		else{
+			$iconparams['trend']="posnotverified";		
+		}
+    }
+	else{
+		$iconparams['trend']="asc";	
+	}
+	$allowedKeys = ['mod', 'trend'];
+	$iconparams = array_filter(
+    $iconparams,
+    function ($key) use ($allowedKeys) {
+        return in_array($key, $allowedKeys);
+    },
+    ARRAY_FILTER_USE_KEY
+);
+    $name = implode("_", $iconparams);
+    $image = "{$_FN['datadir']}/openkis_icons/{$name}.png";
+    if (!file_exists($image))
+    {
+		
+        openkis_MakeIcon($iconparams);
+    }
+    return $image;
+}
+
 function InizializzaDBUmbria()
 {
     //inizializza a UMBRIA la regione di default durante l'inserimento
